@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="js " lang="en"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>IPFS DHT Network</title>
+    <meta name="description" content="IPFS DHT Network">
+    <link rel="stylesheet" href="./static/bootstrap.min.css">
+    <link rel="stylesheet" href="./static/plugins.css">
+    <link rel="stylesheet" href="./static/main.css">
+    <link rel="stylesheet" href="./static/themes.css">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <script src="./static/modernizr-3.3.1.min.js"></script>
+    <style type="text/css">.jqstooltip { width: auto !important; height: auto !important; position: absolute;left: 0px;top: 0px;visibility: hidden;background: #000000;color: white;font-size: 11px;text-align: left;white-space: nowrap;padding: 5px;z-index: 10000;}.jqsfield { color: white;font: 10px arial, san serif;text-align: left;}</style></head>
+<body>
+<div id="page-wrapper" class="">
+    <div id="page-container" class="header-fixed-top sidebar-visible-lg-full">
+        <div id="main-container">
+
+            <!-- Page content -->
+            <div id="page-content" style="min-height: 835px;">
+                <!-- First Row -->
+                <div class="row">
+                    <!-- Simple Stats Widgets -->
+                    <div class="col-sm-6 col-lg-3">
+                        <a href="javascript:void(0)" class="widget">
+                            <div class="widget-content widget-content-mini text-right clearfix">
+                                <div class="widget-icon pull-left themed-background">
+                                    <i class="gi gi-cardio text-light-op"></i>
+                                </div>
+                                <h2 class="widget-heading h3">
+                                    <strong><span data-toggle="counter" id="total_hashs"  data-from="0" data-to="{{index . "total_hashs"}}"></span></strong>
+                                </h2>
+                                <span class="text-muted">总收录</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <a href="javascript:void(0)" class="widget">
+                            <div class="widget-content widget-content-mini text-right clearfix">
+                                <div class="widget-icon pull-left themed-background-warning">
+                                    <i class="gi gi-wallet text-light-op"></i>
+                                </div>
+                                <h2 class="widget-heading h3 text-warning">
+                                    <strong>+ <span data-toggle="counter" id="yesterday_hashs"  data-from="0" data-to="{{index . "yesterday_hashs"}}"></span></strong>
+                                </h2>
+                                <span class="text-muted">昨天新收录</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <a href="javascript:void(0)" class="widget">
+                            <div class="widget-content widget-content-mini text-right clearfix">
+                                <div class="widget-icon pull-left themed-background-success">
+                                    <i class="gi gi-briefcase text-light-op"></i>
+                                </div>
+                                <h2 class="widget-heading h3 text-success">
+                                    <strong>+ <span data-toggle="counter" id="today_hashs" data-from="0" data-to="{{index . "today_hashs"}}"></span></strong>
+                                </h2>
+                                <span class="text-muted">今天新收录</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-3">
+                        <a href="javascript:void(0)" class="widget">
+                            <div class="widget-content widget-content-mini text-right clearfix">
+                                <div class="widget-icon pull-left themed-background-danger">
+                                    <i class="gi gi-user text-light-op"></i>
+                                </div>
+                                <h2 class="widget-heading h3 text-danger">
+                                    <strong><span data-toggle="counter" id="spiders" data-from="0" data-to="{{index . "spiders"}}"></span></strong>
+                                </h2>
+                                <span class="text-muted">工作中的爬虫</span>
+                            </div>
+                        </a>
+                    </div>
+                    <!-- END Simple Stats Widgets -->
+                </div>
+                <!-- END First Row -->
+
+                <!-- Second Row -->
+                <div class="row">
+                    <div class="col-sm-12 col-lg-7">
+                        <!-- Chart Widget -->
+                        <div class="widget">
+                            <div class="widget-content border-bottom">
+                                14日数据
+                            </div>
+                            <div class="widget-content border-bottom themed-background-muted">
+                                <div id="chart-classic-dash" style="height: 393px; padding: 0px; position: relative;">
+                                </div>
+                            </div>
+                            <!-- END Chart Widget -->
+                        </div>
+                    </div>
+                    <div class="col-sm-9 col-lg-5">
+                        <!-- Stats User Widget -->
+                        <div class="widget">
+                            <div class="widget-content border-bottom">
+                                <a href="javascript:void(0)"  class="pull-right refresh">刷新</a>
+                                最新收录
+                            </div>
+                            <div id="new_hashs">
+                            {{range $v := index . "New_hash"}}
+                            <a href="javascript:void(0)" class="widget-content themed-background-muted text-right clearfix">
+                                <span class="widget-heading h4 text-muted"> {{ index $v 0 }}</span>
+                                <span class="pull-right text-muted">{{ index $v 1 }}</span>
+                            </a>
+                            {{end}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END Second Row -->
+
+                <!-- Third Row -->
+                <div class="row">
+                    <div class="col-sm-9 col-lg-4">
+                        <!-- Project Widget -->
+                        <div class="widget">
+                            <div class="widget-content border-bottom">
+                                <span class="pull-right text-muted">热度</span>
+                                历史排行
+                            </div>
+                            {{range $v := index . "History_heats"}}
+                                <a href="/ipfsObject/{{ index $v 0 }}" target="_blank" class="widget-content themed-background-muted text-right clearfix">
+                                    <span class="widget-heading h4 text-muted get-object"> {{ index $v 0 }}</span>
+                                    <span class="pull-right text-muted">{{ index $v 1 }}</span>
+                                </a>
+                            {{end}}
+                        </div>
+                        <!-- END Project Widget -->
+                    </div>
+                    <div class="col-sm-9 col-lg-4">
+                        <div class="widget">
+                            <div class="widget-content border-bottom">
+                                <span class="pull-right text-muted">热度</span>
+                                上周排行
+                            </div>
+                            {{range $v := index . "Lastweek_heats"}}
+                                <a href="/ipfsObject/{{ index $v 0 }}" target="_blank" class="widget-content themed-background-muted text-right clearfix">
+                                    <span class="widget-heading h4 text-muted get-object"> {{ index $v 0 }}</span>
+                                    <span class="pull-right text-muted">{{ index $v 1 }}</span>
+                                </a>
+                            {{end}}
+                        </div>
+                    </div>
+
+                </div>
+                <!-- END Third Row -->
+            </div>
+            <!-- END Page Content -->
+        </div>
+        <!-- END Main Container -->
+    </div>
+    <!-- END Page Container -->
+</div>
+<!-- END Page Wrapper -->
+
+<!-- jQuery, Bootstrap, jQuery plugins and Custom JS code -->
+<script src="./static/jquery-2.2.4.min.js"></script>
+<script src="./static/bootstrap.min.js"></script>
+<script src="./static/plugins.js"></script>
+<script src="./static/app.js"></script>
+<script>
+    $(function(){
+        var hash_data = {{index . "js1_data"}};
+        var date_data = {{index . "js2_data"}}
+        ReadyDashboard.init(hash_data,date_data);
+    });
+</script>
+</body></html>
