@@ -1,4 +1,4 @@
-# IPFS-DHT-Spider-Website
+# IPFS-DHT-Spider-Server
 
 ### Demo
 
