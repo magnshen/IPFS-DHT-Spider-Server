@@ -4,7 +4,7 @@ import (
 	"../models"
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,13 +17,14 @@ type configuration struct {
 	PORT    int
 	DATABASE string
 }
-//var Setting configuration
+var Setting configuration
 var dsn string
+
 func init(){
 	file, _ := os.Open("./config.cnf")
 	defer file.Close()
 	decoder := json.NewDecoder(file)
-	Setting := configuration{}
+	Setting = configuration{}
 	err := decoder.Decode(&Setting)
 	if err != nil {
 		fmt.Println("config file load error")
@@ -32,13 +33,15 @@ func init(){
 	dsn = fmt.Sprintf("%s:%s@%s(%s:%d)/%s",Setting.USERNAME,Setting.PASSWORD,Setting.NETWORK,Setting.SERVER,Setting.PORT,Setting.DATABASE)
 }
 
-func Index(c echo.Context) error{
+func Index(c *gin.Context){
 
 	dbwk ,err := models.NewDbWorker(dsn)
 	if err != nil{
-		return c.String(http.StatusOK,"database connect error")
+	 	c.String(http.StatusOK,"database connect error")
+		return
 	}
 	news ,days,err := dbwk.GetAll()
+	dbwk.CloseConnect()
 	index_data := map[string]interface{}{
 		"total_hashs": news.Total_hashs,
 		"yesterday_hashs":news.Yesterday_hashs,
@@ -80,30 +83,56 @@ func Index(c echo.Context) error{
 	}
 	index_data["History_heats"] = history_heats
 	index_data["Lastweek_heats"] = lastweek_heats
-
-	return c.Render(http.StatusOK, "pc.html",index_data)
-
+	c.HTML(http.StatusOK, "pc.html", index_data)
 }
 
-func GetNews(c echo.Context) error{
+func GetNews(c *gin.Context){
 	dbwk ,err := models.NewDbWorker(dsn)
 	if err != nil{
-		return c.String(http.StatusOK,"database connect error")
+		c.String(http.StatusOK,"database connect error")
+		return
 	}
 	news ,err := dbwk.GetNewsString()
-	return c.String(http.StatusOK,news)
+	dbwk.CloseConnect()
+	c.String(http.StatusOK,news)
 }
-func GetIpfsObject(c echo.Context) error{
+
+func Submit(c *gin.Context){
+	hashs := c.PostForm("hashs")
+	nodeId := c.PostForm("nodeId")
+	spiderName := c.PostForm("spiderName")
+	hashList := []string{}
+	json.Unmarshal([]byte(hashs),&hashList)
+	//dsn :=  fmt.Sprintf("%s:%s@%s(%s:%d)/%s",Setting.USERNAME,Setting.PASSWORD,Setting.NETWORK,Setting.SERVER,Setting.PORT,Setting.DATABASE)
+	dbwk ,err:= models.NewDbWorker(dsn)
+	if err != nil{
+		c.String(http.StatusNotImplemented, "Open mysql failed,err:%v\n")
+		return
+	}
+	for i:=0;i< len(hashList);i++{
+		dbwk.InsertData(hashList[i])
+	}
+	e := dbwk.UpdateSpider(nodeId,spiderName)
+	if e != nil{
+		fmt.Println(e.Error())
+	}
+	dbwk.CloseConnect()
+	c.String(http.StatusOK, "Success")
+}
+func GetIpfsObject(c *gin.Context){
 	hash := c.Param("hash")
 	dbwk ,err := models.NewDbWorker(dsn)
 	if err != nil{
-		return c.String(http.StatusOK,"database connect error")
+		c.String(http.StatusOK,"database connect error")
+		return
 	}
 	obj ,err := dbwk.GetIpfsObject(hash)
 	if err != nil{
-		return c.String(http.StatusOK,"NULL")
+		c.String(http.StatusOK,"NULL")
+		return
 	}
-	return c.String(http.StatusOK,obj)
+	dbwk.CloseConnect()
+	c.String(http.StatusOK,obj)
 }
 
 
