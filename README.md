@@ -1,4 +1,4 @@
-[中文版文档](./READ-cn.md)
+[中文版文档](./README-cn.md)
 
 # IPFS-DHT-Spider-Server
 
